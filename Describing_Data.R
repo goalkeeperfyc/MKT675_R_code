@@ -54,3 +54,21 @@ lines(density(store.df$p1sales, bw=10),  # bw = smoothing
 #boxplot
 boxplot(store.df$p2sales, xlab="Weekly sales", ylab="P2",
         main="Weekly sales of P2, All stores", horizontal=TRUE)
+boxplot(store.df$p2sales ~ store.df$storeNum, horizontal=TRUE,
+        ylab="Store", xlab="Weekly unit sales", las=1,
+        main="Weekly Sales of P2 by Store")
+boxplot(p2sales ~ p2prom, data=store.df, horizontal=TRUE, 
+        yaxt="n", ylab="P2 promoted in store?", 
+        xlab="Weekly sales", main="Sales of P2 vs promotion")
+axis(side=2, at=c(1,2), labels=c("No", "Yes"), las=1)
+
+#QQ plot
+#QQ plots to check distribution 
+#QQ plots for raw vs transformed data
+#Cumulative distribution plots
+
+by(store.df$p1sales, store.df$storeNum, mean)
+storeMean <- aggregate(store.df$p1sales, 
+                       by=list(store=store.df$storeNum), mean)
+storeMean
+#divide people to optimal profit
