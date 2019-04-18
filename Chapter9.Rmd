@@ -1,0 +1,80 @@
+
+```{r}
+cust.df <- read.csv("http://goo.gl/PmPkaG")
+summary(cust.df)
+```
+
+```{r}
+spend.m1 <- lm(online.spend ~ ., 
+               data=subset(cust.df[ , -1], online.spend > 0))
+summary(spend.m1)
+```
+
+```{r}
+library(gpairs)
+gpairs(cust.df)
+```
+
+```{r}
+pass.df <- read.csv("http://goo.gl/J8MH6A")
+pass.df$Promo <- factor(pass.df$Promo, levels=c("NoBundle", "Bundle"))
+summary(pass.df)
+```
+
+```{r}
+pass.m1 <- glm(Pass ~ Promo, data=pass.df, family=binomial)
+summary(pass.m1)
+```
+
+```{r}
+coef(pass.m1)
+exp(coef(pass.m1)) 
+plogis(0.3888) / (1-plogis(0.3888))
+exp(confint(pass.m1)) 
+```
+
+```{r}
+# interpret logistic regression
+# interpret logistic coefficient
+```
+
+```{r}
+library(vcd)    # install if needed
+doubledecker(table(pass.df))
+```
+
+```{r}
+pass.m3 <- glm(Pass ~ Promo + Channel + Promo:Channel, 
+               data=pass.df, family=binomial)
+exp(confint(pass.m3))   # CI for odds ratios
+```
+
+```{r}
+conjoint.df <- read.csv("http://goo.gl/G8knGV")
+conjoint.df$speed  <- factor(conjoint.df$speed)   # why?
+conjoint.df$height <- factor(conjoint.df$height)  # why?
+summary(conjoint.df)
+```
+
+```{r}
+ride.lm <- lm(rating ~ speed + height + const + theme, data=conjoint.df)
+summary(ride.lm)
+```
+
+```{r}
+library(lme4)
+ride.hlm1 <- lmer(rating ~ speed + height + const + theme + 
+                    (1 | resp.id), data=conjoint.df)
+confint(ride.hlm1)
+
+# for each person
+head(ranef(ride.hlm1)$resp.id, 4)
+
+
+head(coef(ride.hlm1)$resp.id, 4)
+```
+
+```{r}
+
+```
+

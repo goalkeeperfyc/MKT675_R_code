@@ -1,0 +1,117 @@
+
+```{r}
+# load the data
+brand.ratings <- read.csv("http://goo.gl/IQl8nc")
+```
+
+```{r}
+# check it out
+head(brand.ratings)
+tail(brand.ratings)
+```
+
+```{r}
+summary(brand.ratings)
+str(brand.ratings)
+```
+
+```{r}
+# Rescaling the data
+# center and Z-score it
+# variable in the same scale
+x <- 1:1000
+x.sc <- (x - mean(x)) / sd(x)
+summary(x.sc)
+```
+
+```{r}
+# transform the brand data
+brand.sc <- brand.ratings
+brand.sc[, 1:9] <- scale(brand.ratings[, 1:9])
+summary(brand.sc)
+```
+
+```{r}
+library(corrplot)
+corrplot(cor(brand.sc[, 1:9]), order="hclust")
+```
+
+```{r}
+# aggregate personality attributes by brand
+brand.mean <- aggregate(. ~ brand, data = brand.sc, mean)
+brand.mean <- brand.mean[, -1]          # remove brand name column
+brand.mean
+```
+
+```{r}
+## PCA for brand ratings
+# how to choose the number of PCA
+brand.pc <- prcomp(brand.sc[, 1:9])
+summary(brand.pc)
+plot(brand.pc, type="l")
+biplot(brand.pc)
+```
+
+```{r}
+# try again with just the means
+brand.mu.pc <- prcomp(brand.mean, scale=TRUE)
+summary(brand.mu.pc)
+
+biplot(brand.mu.pc, main="Brand positioning", cex=c(1.5, 1))
+
+# compare brands
+brand.mean["c", ] - brand.mean["e", ]
+
+# towards unoccupied space between b/c & g/f
+colMeans(brand.mean[c("b", "c", "f", "g"), ]) - brand.mean["e", ]
+```
+
+```{r}
+#### Exploratory Factor Analysis
+# when to use it
+library(nFactors)
+nScree(brand.sc[, 1:9])
+eigen(cor(brand.sc[, 1:9]))
+
+factanal(brand.sc[, 1:9], factors=2)
+factanal(brand.sc[, 1:9], factors=3)
+```
+
+```{r}
+#### Multidimensional scaling
+# distance matrix
+brand.dist <- dist(brand.mean)
+
+# metric MDS
+(brand.mds <- cmdscale(brand.dist))
+# plot it
+plot(brand.mds, type="n")
+text(brand.mds, rownames(brand.mds), cex=2)
+```
+
+```{r}
+# non-metric MDS alternative 
+brand.rank <- data.frame(lapply(brand.mean, function(x) ordered(rank(x))))
+str(brand.rank)
+
+library(cluster)
+brand.dist.r <- daisy(brand.rank, metric="gower")
+
+brand.mds.r <- isoMDS(brand.dist.r)
+
+plot(brand.mds.r$points, type="n")
+text(brand.mds.r$points, levels(brand.sc$brand), cex=2)
+```
+
+```{r}
+#### extra!
+#
+# the following is NOT in the book
+# same general solution as PCA, but with clustering instead 
+# this is a preview of the segmentation chapter
+library(cluster)
+clusplot(fanny(brand.dist, k=3), color=FALSE, shade=FALSE, 
+         labels=3, lines=0, plotchar=FALSE,
+         main="Brand perception groups")
+```
+

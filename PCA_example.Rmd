@@ -1,0 +1,22 @@
+
+```{r}
+# Simple example
+# create simple correlated data
+set.seed(98286)
+xvar <- sample(1:10, 100, replace=TRUE)
+yvar <- xvar
+yvar[sample(1:length(yvar), 50)] <- sample(1:10, 50, replace=TRUE)
+zvar <- yvar
+zvar[sample(1:length(zvar), 50)] <- sample(1:10, 50, replace=TRUE)
+my.vars <- cbind(xvar, yvar, zvar)
+
+# visualize
+plot(yvar ~ xvar, data=jitter(my.vars))
+
+cor(my.vars)
+
+# principal components
+my.pca <- prcomp(my.vars)
+summary(my.pca)
+my.pca
+```

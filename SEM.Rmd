@@ -1,0 +1,78 @@
+ 
+```{r}
+library(readr)
+piesSimData <- read_csv("/Users/fangyucheng/Documents/Courses/MKT675/SEM/rintro-chapter10pies.csv")
+summary(piesSimData)
+```
+
+```{r}
+library(lavaan)
+library(semTools)
+library(semPlot)
+```
+
+```{r}
+library(lavaan)
+# define the hierarchical structural model [same as above; repeated here]
+piesModel <- " General =~ i1 + i2 + i3
+               Feature =~ i4 + i5 + i6  + i7
+               Image   =~ i8 + i9 + i10 + i11
+               PIES =~ General + Feature + Image "
+
+pies.fit <- cfa(piesModel, data=piesSimData)
+summary(pies.fit, fit.measures=TRUE)
+```
+
+```{r}
+library(semPlot)
+semPaths(pies.fit, what="est", fade=FALSE, residuals=FALSE,
+         edge.label.cex=0.75)
+```
+
+```{r}
+library(readr)
+satSimData <- read_csv("/Users/fangyucheng/Documents/Courses/MKT675/SEM/rintro-chapter10pies.csv")
+summary(satSimData)
+```
+
+```{r}
+satModel <- " Quality =~ CSat + Value + q1 + q2 + q3  + 0*Cost
+              Cost    =~ Value + Repeat + c1 + c2 + c3
+              Value   =~ CSat + v1 + v2 + v3
+              CSat    =~ Repeat + cs1 + cs2 + cs3
+              Repeat  =~ r1 + r2 + r3 "
+```
+
+```{r}
+satDataModel <- " Quality =~  0.59*CSat + 0.56*Value + 
+                              0.9*q1 + 0.9*q2 + 0.9*q3 + 0*Cost
+                  Cost    =~ -0.5*Value + -0.29*Repeat + 
+                              0.9*c1 + 0.9*c2 + 0.9*c3
+                  Value   =~  0.06*CSat + 0.9*v1 + 0.9*v2 + 0.9*v3
+                  CSat    =~  0.48*Repeat + 0.9*cs1 + 0.9*cs2 + 0.9*cs3
+                  Repeat  =~  0.9*r1 + 0.9*r2 + 0.9*r3 "
+```
+
+```{r}
+set.seed(33706)  # continuing the island tour
+satData.norm <- simulateData(satDataModel, sample.nobs=200)
+satSimData <- data.frame(lapply(satData.norm, 
+                          function(x) { as.numeric(cut(x, breaks=7)) } ))
+```
+
+```{r}
+library(car)
+some(satSimData)
+library(psych)
+describe(satSimData)
+# check item-item relationships
+cor(satSimData)
+# visually examine the relationships
+library(RColorBrewer)
+scatterplotMatrix(satSimData[, c(1, 2, 4, 5, 7, 8, 10, 11, 13, 14)], 
+                  col=brewer.pal(3, "Spectral"), ellipse=TRUE )
+
+# basic psychometrics
+alpha(satSimData)
+```
+
